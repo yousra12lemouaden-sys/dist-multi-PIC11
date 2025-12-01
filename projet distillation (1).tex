@@ -1,0 +1,201 @@
+
+\usepackage{graphicx}
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{hyperref}
+
+\title{\textbf{Rapport du projet de module}\\[0.5em]
+\large Application de distillation (Simulation Shortcut Multicomposants)}
+\author{} % on gère tout à la main sur la titlepage
+\date{}
+
+
+
+\begin{document}
+
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.2\linewidth]{téléchargement__1_-removebg-preview.png}  \includegraphics[width=0.2\linewidth]{téléchargement__2_-removebg-preview.png}
+   
+    \label{fig:placeholder}
+\end{figure}
+
+
+\begin{titlepage}
+    \centering
+    {\large Université Hassan 1\textsuperscript{er}\\
+    Faculté des Sciences et Techniques de Settat\par}
+    \vspace{1.5cm}
+
+    % ==== CE QUE TU VEUX AVANT LE TITRE ====
+    {\large
+    DÉPARTEMENT : Chimie Appliquée et Environnement\\
+    FILIÈRE : Procédés et Ingénierie Chimique (PIC 11)\\
+    MODULE : Simulation et modélisation\par}
+    \vspace{1.5cm}
+    % =======================================
+
+    {\huge \textbf{Rapport du projet de module}\par}
+    \vspace{ 0.8cm}
+    {\Large Application de distillation\\
+    (Simulation Shortcut Multicomposants)\par}
+    \vfill
+    {\large
+      \vspace{ 0.8cm}
+    Élaboré par : LEMOUADEN Yousra\\
+    Encadré par : Pr.~Z.~BAKHER\par}
+    \vfill
+    {\large Année universitaire 2025--2026\par}
+\end{titlepage}
+
+
+
+\tableofcontents
+\newpage
+
+% ... le reste de ton rapport (sections, figures, tableaux, etc.)
+
+
+
+\begin{document}
+
+
+
+\newpage
+
+\section{Introduction}
+
+Ce rapport présente une analyse concise d’une application pédagogique destinée au dimensionnement de colonnes de distillation pour mélanges multicomposants. L’application implémente des routines thermodynamiques élémentaires (calcul de Psat, coefficients d’équilibre \(K\), températures de bulle/rosée) ainsi que les méthodes simplifiées classiques de génie des procédés (Fenske, Underwood, Gilliland, Kirkbride). L’objectif de ce document est d’expliquer l’architecture du code, de détailler le rôle des principales classes, d’exposer le modèle thermodynamique utilisé, de présenter les résultats d’un exemple BTX, puis de proposer des améliorations prioritaires pour renforcer la robustesse et la réutilisabilité du code.
+
+\section{Présentation générale de l’application}
+
+L’application est organisée en trois volets complémentaires :
+
+\begin{enumerate}
+    \item Module cœur \texttt{distillation\_multicomposants.py} qui gère les entités thermodynamiques et les algorithmes de dimensionnement simplifié ;
+    \item Script d’exemple \texttt{exemple\_btx.py} qui construit un cas BTX, exécute les routines et produit profils et graphiques ;
+    \item Module de visualisation \texttt{visualization.py} qui génère des figures statiques (Matplotlib) et interactives (Plotly si disponible).
+\end{enumerate}
+
+Les dépendances principales figurent dans \texttt{requirements.txt} (notamment \texttt{thermo}, \texttt{chemicals}, \texttt{numpy}, \texttt{scipy}, \texttt{matplotlib}, \texttt{plotly}). L’usage typique consiste à exécuter \texttt{python exemple\_btx.py} pour obtenir un jeu complet de résultats et d’images.
+
+\begin{figure}[h]
+  \centering
+\includegraphics {projet dist1.png}
+    \includegraphics[width=0.8\textwidth]{nom_de_l_image} % ton fichier (sans extension de préférence)
+    \caption{Organisation de l'application.}
+    \label{fig:mon_image}
+\end{figure}
+
+\section{Architecture du code et rôle des classes}
+
+L’architecture logicielle sépare clairement les responsabilités en plusieurs classes :
+
+\begin{itemize}
+    \item \textbf{Compound} : wrapper d’un composé pur, lecture des propriétés et méthodes utilitaires (Psat, \(K\), enthalpies) ; encapsule l’accès aux données pure-composant (\texttt{thermo.Chemical}) ;
+    \item \textbf{ThermodynamicPackage} : calculs d’équilibre et propriétés de mélange (K-values, températures de bulle/rosée, enthalpies de mélange) ; suppose la loi de Raoult idéale ;
+    \item \textbf{ShortcutDistillation} : implémentation des méthodes pédagogiques (Fenske, Underwood, Gilliland, Kirkbride, bilans matière simplifiés) ;
+    \item \textbf{DistillationVisualizer} : création et sauvegarde des graphiques, interface graphique (Matplotlib/Plotly).
+\end{itemize}
+
+Cette séparation facilite la lecture : chaque classe a une responsabilité unique et communique via des tableaux \texttt{numpy} et des dictionnaires de résultats.
+
+
+\begin{figure}[h]
+  \centering
+\includegraphics {projet dist2.png}
+    \includegraphics[width=0.8\textwidth]{nom_de_l_image} % ton fichier (sans extension de préférence)
+    \caption{Differents classes avec leurs rôles.}
+    \label{fig:mon_image}
+\end{figure}
+\section{Fonctionnement du modèle thermique}
+
+Le modèle thermodynamique mis en œuvre est volontairement simple : il utilise la loi de Raoult idéale. Les pressions de vapeur saturante Psat sont obtenues via la bibliothèque \texttt{thermo} pour chaque composé. Les températures de bulle et de rosée sont résolues numériquement, et les enthalpies liquide et vapeur sont évaluées composant par composant.
+
+Les principales hypothèses sont : solution idéale (Raoult), pression constante et mélanges faiblement non-idéaux.
+
+\section{Résultats obtenus}
+
+Pour illustrer le fonctionnement, l’exemple proposé (\texttt{exemple\_btx.py}) traite un mélange benzène–toluène–o-xylène. L’exécution renvoie notamment le débit de distillat \(D\), le débit de résidu \(B\) ainsi que les compositions \(x_D\) et \(x_B\). 
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=0.6\textwidth]{projet dist3.png} % ton fichier (sans extension de préférence)
+    \caption{Profile de Températures.}
+    \label{fig:mon_image}
+\end{figure}
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=0.6\textwidth]{projet dist4.png} % ton fichier (sans extension de préférence)
+    \caption{Profile de compositions.}
+    \label{fig:mon_image}
+\end{figure}
+
+\section{Améliorations possibles}
+
+Le code constitue une base pédagogique solide, mais plusieurs améliorations augmenteraient sa robustesse, sa précision et sa maintenabilité :
+
+\begin{itemize}
+    \item Ajouter une gestion explicite des erreurs et vérifier la convergence des solveurs numériques ;
+    \item Rendre le modèle thermodynamique modulaire (choix entre loi de Raoult, modèles d’activité, équations d’état) ;
+    \item Corriger les effets de bord, gérer les valeurs manquantes et ajouter des tests unitaires.
+\end{itemize}
+
+\section{Comparaison avec Aspen Plus}
+Les résultats de distillation d'Aspen Plus affichent des fractions molaires considérablement différentes de celles obtenues par Python. Cela pourrait s'expliquer par des variations dans les conditions de simulation ou les modèles thermodynamiques utilisés.
+
+Ces différences devraient être étudiées en détail pour identifier les causes sous-jacentes, notamment en examinant les paramètres d'entrée, les méthodes de calcul de l'équilibre, et les hypothèses sur les comportements des mélanges. Cela aidera à assurer la cohérence et la validité des résultats obtenus.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=0.6\textwidth]{projet dist5.png} % ton fichier (sans extension de préférence)
+    \caption{Résultats sur Aspen Plus.}
+    \label{fig:mon_image}
+\end{figure}
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=0.6\textwidth]{projet dist6.png} % ton fichier (sans extension de préférence)
+    \caption{Résultats sur Python VsCode}
+    \label{fig:mon_image}
+\end{figure}
+
+\begin{table}[h]
+    \centering
+    \caption{Comparaison des résultats Aspen Plus / Python.}
+    \renewcommand{\arraystretch}{1.1} % léger espacement vertical
+    \resizebox{0.8\textwidth}{!}{% 80% de la largeur du texte
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline
+        Composant & Aspen Plus (Distillat) & Python (Distillat) & Différence (\%) & Aspen Plus (Résidu) & Python (Résidu) & Différence (\%) \\
+        \hline
+        Benzène   & 95.45\% & 72.05\% & N/A & 5.38\% & 2.97\% & N/A \\
+        \hline
+        Toluène   & 46.21\% & 24.15\% & N/A & 46.21\% & 40.46\% & N/A \\
+        \hline
+        o-Xylène  & 0.00\%  & 3.80\%  & N/A & 48.40\% & 56.57\% & N/A \\
+        \hline
+    \end{tabular}
+    }
+\end{table}
+
+
+\section{Conclusion}
+
+L'application développée constitue un outil pédagogique efficace pour obtenir rapidement des estimations préliminaires des paramètres de dimensionnement d'une colonne de distillation, en s'appuyant sur des méthodes simplifiées telles que la loi de Raoult et des approches heuristiques. Ces méthodes restent adaptées aux mélanges peu polaires à pression atmosphérique, mais il demeure crucial de valider les résultats à l'aide de méthodes MESH ou de logiciels commerciaux lors de la conception finale.
+
+Les écarts observés entre les fractions molaires calculées par Python et celles obtenues avec Aspen Plus soulignent l'importance d'une analyse approfondie. Ces différences peuvent résulter des variations des conditions de simulation, des modèles thermodynamiques ou des hypothèses sur le comportement des mélanges, et nécessitent un examen détaillé des paramètres d'entrée et des méthodes de calcul de l'équilibre.
+
+Enfin, les améliorations proposées, telles que le renforcement de la robustesse numérique, la modularité du modèle thermodynamique, ainsi que la mise en place de tests et d’une documentation complète, offrent une feuille de route claire pour transformer ce projet en un outil plus fiable et réutilisable. Une telle évolution garantira la cohérence et la validité des résultats, renforçant ainsi la confiance dans les estimations de distillation.
+
+\end{document}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Connexion</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width:420px;margin:0 auto">
+      <h1>Connexion</h1>
+      {% if error %}
+        <p style="color:rgb(76, 0, 255)">{{ error }}</p>
+      {% endif %}
+      <form method="post" style="display:flex;flex-direction:column;gap:10px">
+        <label>Utilisateur: <input name="username" required></label>
+        <label>Mot de passe: <input type="password" name="password" required></label>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+          <button class="btn" type="submit">Se connecter</button>
+        </div>
+      </form>
+      <p style="margin-top:12px">Pas de compte ? <a href="/register">Créer un compte</a></p>
+    </div>
+  </div>
+</body>
+</html>

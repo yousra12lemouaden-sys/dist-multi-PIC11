@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Résultats - Distillation BTX</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Font + GLightbox -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Résultats <span class="title-deco">{{ ts }}</span></h1>
+        <div class="meta">Connecté: {% if username %}<strong>{{ username }}</strong>{% else %}invité{% endif %}</div>
+      </div>
+      <div class="controls"><a class="button" href="/">← Retour</a></div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Sortie console</h3>
+        <div class="console">
+          <pre class="console-pre">{{ output }}</pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Images générées</h3>
+        <div class="images">
+          {% for name, url in files.items() %}
+            {% if name.endswith('.png') %}
+              <div class="thumb" title="{{ name }}">
+                <a href="{{ url }}" class="glightbox" data-gallery="btx" data-title="{{ name }}">
+                  <img src="{{ url }}" alt="{{ name }}">
+                </a>
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {% set html_files = files|selectattr('0','defined')|list %}
+          {% if files|selectattr('0','defined') %}
+          <!-- Liste des fichiers interactifs (HTML) -->
+          <div style="margin-top:12px">
+            <h4>Fichiers HTML</h4>
+            <ul>
+              {% for name, url in files.items() %}
+                {% if name.endswith('.html') %}
+                  <li><a class="html-link" href="{{ url }}" target="_blank" rel="noopener">{{ name }}</a></li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+  <!-- GLightbox JS -->
+  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const lightbox = GLightbox({selector: '.glightbox', touchNavigation: true, loop: true});
+    });
+  </script>
+</html>

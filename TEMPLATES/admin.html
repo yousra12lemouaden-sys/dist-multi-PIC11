@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="header" style="align-items:center;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo">ADM</div>
+        <h1 style="margin:0">Administration</h1>
+      </div>
+      <div><a class="btn" href="{{ url_for('index') }}">Retour</a></div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div style="margin-top:10px">
+          {% for m in messages %}
+            <div class="card" style="margin-bottom:8px">{{ m }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <section style="margin-top:18px">
+      <h2>Fichiers générés</h2>
+      <div class="card">
+        {% if files|length == 0 %}
+          <p>Aucun fichier généré trouvé.</p>
+        {% else %}
+          <table class="table">
+            <thead>
+              <tr><th>Nom</th><th>Taille</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {% for f in files %}
+                <tr>
+                  <td><a href="{{ url_for('static_file', filename=f.name) }}">{{ f.name }}</a></td>
+                  <td>{{ '{:,}'.format(f.size) }} bytes</td>
+                  <td>
+                    <form method="post" action="{{ url_for('admin_delete') }}" style="display:inline">
+                      <input type="hidden" name="filename" value="{{ f.name }}">
+                      <button type="submit" class="btn">Supprimer</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+    </section>
+
+    <section style="margin-top:18px">
+      <h2>Utilisateurs</h2>
+      <div class="card">
+        {% if users|length == 0 %}
+          <p>Aucun utilisateur trouvé.</p>
+        {% else %}
+          <table class="table">
+            <thead>
+              <tr><th>Nom</th><th>Admin</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {% for u in users %}
+                <tr>
+                  <td>{{ u.username }}</td>
+                  <td>{{ 'Oui' if u.is_admin else 'Non' }}</td>
+                  <td>
+                    <form method="post" action="{{ url_for('admin_toggle') }}" style="display:inline">
+                      <input type="hidden" name="target" value="{{ u.username }}">
+                      <button type="submit" class="btn">Basculer admin</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Distillation BTX - Interface</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="logo">BTX</div>
+        <div>
+          <h1>Distillation BTX</h1>
+          <div class="lead">Exécutez la simulation et générez les graphiques de dimensionnement.</div>
+        </div>
+      </div>
+      <div>
+        <div class="meta">Utilisateur: {% if username %}<strong>{{ username }}</strong> (<a href="/logout" style="color:#fff8">déconnexion</a>){% else %}<a href="/login" style="color:#fff8">Se connecter</a> | <a href="/register" style="color:#fff8">Créer un compte</a>{% endif %}</div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <form class="row" action="/run" method="get">
+        <button class="btn" type="submit">Lancer la simulation</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
